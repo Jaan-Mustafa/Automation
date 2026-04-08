@@ -29,6 +29,6 @@ jobs:
         env:
           NAUKRI_EMAIL: ${{ secrets.NAUKRI_EMAIL }}
           NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
-          RESUME_PATH: data/resume/Rizabul_SDE_Resume_DCE.pdf
+          RESUME_PATH: ../data/resume/Rizabul_SDE_Resume_DCE.pdf
           NAUKRI_FORM_KEY: ${{ secrets.NAUKRI_FORM_KEY }}
         run: node update-resume-api.js
