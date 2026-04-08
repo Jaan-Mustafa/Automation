@@ -1,8 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const axios = require("./node_modules/axios/index.d.cts");
-const { CookieJar } = require("./node_modules/tough-cookie/dist/index.d.cts");
+const axios = require("axios");
+const { CookieJar } = require("tough-cookie");
 const { wrapper } = require("axios-cookiejar-support");
 require("dotenv").config();
 
