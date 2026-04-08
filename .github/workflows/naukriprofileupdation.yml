@@ -2,7 +2,7 @@ name: Naukri Profile Update
 
 on:
   schedule:
-    - cron: "0 5 * * *" # 10:30 AM IST (5:00 AM UTC) daily
+    - cron: "15 3 * * *" # 8:45 AM IST (3:15 AM UTC) daily
   workflow_dispatch: # Allow manual trigger
 
 defaults:
