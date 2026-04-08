@@ -5,6 +5,10 @@ on:
     - cron: "30 3 * * *" # 9:00 AM IST (3:30 AM UTC) daily
   workflow_dispatch: # Allow manual trigger
 
+defaults:
+  run:
+    working-directory: naukriProfileAutomation
+
 jobs:
   update-profile:
     runs-on: ubuntu-latest
