@@ -1,0 +1,30 @@
+name: Naukri Profile Update
+
+on:
+  schedule:
+    - cron: "30 3 * * *" # 9:00 AM IST (3:30 AM UTC) daily
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-profile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run resume update
+        env:
+          NAUKRI_EMAIL: ${{ secrets.NAUKRI_EMAIL }}
+          NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
+          RESUME_PATH: data/resume/Rizabul_SDE_Resume_DCE.pdf
+          NAUKRI_FORM_KEY: ${{ secrets.NAUKRI_FORM_KEY }}
+        run: node update-resume-api.js
