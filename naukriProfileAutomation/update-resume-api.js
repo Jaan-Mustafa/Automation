@@ -13,6 +13,19 @@ const FORM_KEY = process.env.NAUKRI_FORM_KEY;
 
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36";
 
+// Builds the upload filename with today's date appended, e.g.
+// "Rizabul_SDE_Resume_DCE.pdf" -> "Rizabul_SDE_Resume_DCE_22Jun2026.pdf".
+// The file on disk is left untouched; only the name sent to Naukri changes.
+function buildDatedFileName(resumePath) {
+  const ext = path.extname(resumePath);
+  const base = path.basename(resumePath, ext);
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = now.toLocaleString("en-US", { month: "short" });
+  const year = now.getFullYear();
+  return `${base}_${day}${month}${year}${ext}`;
+}
+
 // ================== UTIL ==================
 function generateFileKey(length) {
   const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -180,7 +193,7 @@ async function updateProfile(token, profileId, fileKey) {
     process.exit(1);
   }
 
-  const fileName = path.basename(resumePath);
+  const fileName = buildDatedFileName(resumePath);
   const fileKey = generateFileKey(13);
 
   try {
