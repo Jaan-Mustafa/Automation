@@ -8,13 +8,13 @@ require("dotenv").config();
 
 const NAUKRI_EMAIL = process.env.NAUKRI_EMAIL;
 const NAUKRI_PASSWORD = process.env.NAUKRI_PASSWORD;
-const RESUME_PATH = process.env.RESUME_PATH || "data/resume/Rizabul_SDE_Resume_DCE.pdf";
+const RESUME_PATH = process.env.RESUME_PATH || "data/resume/Rizabul_sde_resume.pdf";
 const FORM_KEY = process.env.NAUKRI_FORM_KEY;
 
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36";
 
 // Builds the upload filename with today's date appended, e.g.
-// "Rizabul_SDE_Resume_DCE.pdf" -> "Rizabul_SDE_Resume_DCE_22Jun2026.pdf".
+// "Rizabul_sde_resume.pdf" -> "Rizabul_sde_resume_22Jun2026.pdf".
 // The file on disk is left untouched; only the name sent to Naukri changes.
 function buildDatedFileName(resumePath) {
   const ext = path.extname(resumePath);
