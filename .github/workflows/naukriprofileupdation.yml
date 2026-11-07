@@ -20,10 +20,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore Naukri session
+        env:
+          NAUKRI_SESSION_JSON: ${{ secrets.NAUKRI_SESSION_JSON }}
+        run: |
+          if [ -n "$NAUKRI_SESSION_JSON" ]; then
+            printf '%s' "$NAUKRI_SESSION_JSON" > "$RUNNER_TEMP/naukri-state.json"
+          fi
+
       - name: Run resume update
         env:
           NAUKRI_EMAIL: ${{ secrets.NAUKRI_EMAIL }}
           NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
           RESUME_PATH: ../data/resume/Rizabul_sde_resume.pdf
           NAUKRI_FORM_KEY: ${{ secrets.NAUKRI_FORM_KEY }}
+          NAUKRI_STORAGE_STATE: ${{ runner.temp }}/naukri-state.json
         run: node update-resume-api.js

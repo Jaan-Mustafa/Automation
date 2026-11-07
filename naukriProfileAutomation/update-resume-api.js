@@ -10,6 +10,10 @@ const NAUKRI_EMAIL = process.env.NAUKRI_EMAIL;
 const NAUKRI_PASSWORD = process.env.NAUKRI_PASSWORD;
 const RESUME_PATH = process.env.RESUME_PATH || "data/resume/Rizabul_sde_resume.pdf";
 const FORM_KEY = process.env.NAUKRI_FORM_KEY;
+// Optional: a Playwright storageState JSON saved by login-once.js. When present,
+// the script reuses the existing session instead of logging in (which may be
+// blocked by a captcha challenge).
+const STORAGE_STATE = process.env.NAUKRI_STORAGE_STATE;
 
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36";
 
@@ -70,6 +74,40 @@ async function login() {
   }
 
   console.log("Login successful!");
+  return tokenCookie.value;
+}
+
+// ================== SAVED SESSION ==================
+async function loadSavedSession() {
+  console.log("Step 1: Using saved Naukri session...");
+
+  const state = JSON.parse(fs.readFileSync(STORAGE_STATE, "utf8"));
+  const cookies = state.cookies || [];
+
+  for (const c of cookies) {
+    const url = `https://${c.domain.replace(/^\./, "")}${c.path || "/"}`;
+    const attrs = [
+      `${c.name}=${c.value}`,
+      `Domain=${c.domain}`,
+      `Path=${c.path || "/"}`,
+    ];
+    if (c.expires && c.expires > 0) {
+      attrs.push(`Expires=${new Date(c.expires * 1000).toUTCString()}`);
+    }
+    if (c.secure) attrs.push("Secure");
+    try {
+      await jar.setCookie(attrs.join("; "), url);
+    } catch (_) {
+      // Ignore cookies that tough-cookie refuses; the token is what matters.
+    }
+  }
+
+  const tokenCookie = cookies.find((c) => c.name === "nauk_at");
+  if (!tokenCookie) {
+    throw new Error(`Bearer token (nauk_at) not found in ${STORAGE_STATE}. Run login-once.js again.`);
+  }
+
+  console.log("Saved session loaded!");
   return tokenCookie.value;
 }
 
@@ -171,8 +209,12 @@ async function updateProfile(token, profileId, fileKey) {
 
 // ================== MAIN ==================
 (async () => {
-  if (!NAUKRI_EMAIL || !NAUKRI_PASSWORD) {
+  const hasSavedSession =
+    STORAGE_STATE && fs.existsSync(STORAGE_STATE) && fs.statSync(STORAGE_STATE).size > 0;
+
+  if (!hasSavedSession && (!NAUKRI_EMAIL || !NAUKRI_PASSWORD)) {
     console.error("Set NAUKRI_EMAIL and NAUKRI_PASSWORD in .env");
+    console.error("or run login-once.js and set NAUKRI_STORAGE_STATE to the saved file");
     process.exit(1);
   }
   if (!FORM_KEY) {
@@ -197,7 +239,7 @@ async function updateProfile(token, profileId, fileKey) {
   const fileKey = generateFileKey(13);
 
   try {
-    const token = await login();
+    const token = hasSavedSession ? await loadSavedSession() : await login();
     const profileId = await fetchProfileId(token);
     const resolvedFileKey = await uploadResume(resumeContent, fileName, fileKey);
     await updateProfile(token, profileId, resolvedFileKey);
